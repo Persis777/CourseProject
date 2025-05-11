@@ -1,0 +1,54 @@
+name: limb
+
+
+services:
+  web:
+    container_name: web
+    build:
+      context: ./client/
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - proxy
+
+  api:
+    container_name: api
+    build:
+      context: ./server/
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db,1433;Database=Tasks;Encrypt=False;User Id=sa;Password=YourStrong@Passw0rd;
+    networks:
+      - backend
+      - proxy
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Express
+    expose:
+      - "1433"
+    ports:
+      - "1433:1433"
+    networks:
+      - backend
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
+
+networks:
+  backend:
+    driver: bridge
+  proxy:
+    driver: bridge
