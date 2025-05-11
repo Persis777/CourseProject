@@ -10,14 +10,26 @@ namespace TaskTracker.Services
     public class RecommendationService
     {
         private readonly ApplicationDBContext _context;
+        private readonly MLRecommendationService _mlRecommendationService;
 
-        public RecommendationService(ApplicationDBContext context)
+        public RecommendationService(ApplicationDBContext context, MLRecommendationService mlRecommendationService)
         {
             _context = context;
+            _mlRecommendationService = mlRecommendationService;
         }
 
         public async Task GenerateRecommendationsForUser(string userId)
         {
+            // Get ML-based task recommendations
+            var recommendedTasks = await _mlRecommendationService.GetRecommendedTasks(userId);
+            
+            if (recommendedTasks.Any())
+            {
+                await AddRecommendation(userId,
+                    $"Рекомендовані завдання для вас: {string.Join(", ", recommendedTasks.Select(t => t.Title))}",
+                    "MLRecommendation");
+            }
+
             // Get tasks from the last week
             var lastWeek = DateTime.UtcNow.AddDays(-7);
             var userTasks = await _context.UserTasks

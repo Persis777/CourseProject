@@ -58,6 +58,7 @@ builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 builder.Services.AddScoped<IPlanStepRepository, PlanStepRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<RecommendationService>();
+builder.Services.AddScoped<MLRecommendationService>();
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
